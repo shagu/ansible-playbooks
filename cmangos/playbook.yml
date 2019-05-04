@@ -1,0 +1,19 @@
+---
+- hosts: all
+  tasks:
+    - name: ubuntu update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: dist
+
+    - name: user check
+      user: name=ubuntu shell=/usr/bin/bash
+
+- hosts: cmangos-server
+  roles:
+    - cmangos-classic
+
+#- hosts: cmangos-database
+#  roles:
+#    - cmangos-classicdb

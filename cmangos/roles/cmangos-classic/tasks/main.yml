@@ -1,0 +1,8 @@
+---
+- name: install cmangos dependencies
+  remote_user: ubuntu
+  apt:
+    name: ['git', 'libace-dev', 'build-essential', 
+           'libmysql++-dev', 'libtool', 'libssl-dev', 'zlibc', 
+           'libc6', 'libbz2-dev', 'cmake', 'libboost-all-dev', 
+           'unzip']
