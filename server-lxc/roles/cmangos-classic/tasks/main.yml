@@ -33,14 +33,21 @@
     owner: "ubuntu"
     state: directory
 
-- name: build cmangos
+- name: cmake cmangos
   shell: >
     cmake "/home/ubuntu/cmangos-classic/source"
     -DBUILD_EXTRACTORS=1
     -DCMAKE_INSTALL_PREFIX=/home/ubuntu/cmangos-classic/run
-    ;
-    make -j4
-    ;
-    make install
   args:
-    chdir: "/home/ubuntu/cmangos-classic/source/build"
+    chdir: /home/ubuntu/cmangos-classic/source/build
+
+- name: compile cmangos
+  make:
+    chdir: /home/ubuntu/cmangos-classic/source/build
+    params:
+      NUM_THREADS: 4
+
+- name: install cmangos
+  make:
+    chdir: /home/ubuntu/cmangos-classic/source/build
+    target: install
