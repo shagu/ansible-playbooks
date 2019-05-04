@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  remote_user: root
   tasks:
     - name: ubuntu update
       apt:
@@ -11,9 +12,11 @@
       user: name=ubuntu shell=/usr/bin/bash
 
 - hosts: cmangos-server
+  remote_user: root
   roles:
     - cmangos-classic
 
 #- hosts: cmangos-database
+#  remote_user: root
 #  roles:
 #    - cmangos-classicdb
