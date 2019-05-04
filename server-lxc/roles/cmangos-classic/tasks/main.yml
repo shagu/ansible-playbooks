@@ -1,5 +1,5 @@
 ---
-- name: install cmangos dependencies
+- name: install dependencies
   apt:
     name: ['git', 'libace-dev', 'build-essential',
            'libmysql++-dev', 'libtool', 'libssl-dev', 'zlibc',
@@ -13,10 +13,34 @@
     mode: 0755
     state: directory
 
-- name: Clone cmangos repository
+- name: clone servercode
   remote_user: ubuntu
   git:
     repo: "git://github.com/cmangos/mangos-classic.git"
     dest: "/home/ubuntu/cmangos-classic/source"
     version: "master"
     update: yes
+
+- name: build directory
+  file:
+    path: "/home/ubuntu/cmangos-classic/source/build"
+    owner: "ubuntu"
+    state: directory
+
+- name: run directory
+  file:
+    path: "/home/ubuntu/cmangos-classic/run"
+    owner: "ubuntu"
+    state: directory
+
+- name: build cmangos
+  shell: >
+    cmake "/home/ubuntu/cmangos-classic/source"
+    -DBUILD_EXTRACTORS=1
+    -DCMAKE_INSTALL_PREFIX=/home/ubuntu/cmangos-classic/run
+    ;
+    make -j4
+    ;
+    make install
+  args:
+    chdir: "/home/ubuntu/cmangos-classic/source/build"
