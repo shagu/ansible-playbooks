@@ -91,4 +91,6 @@
 
 # Ansible
     # pacman -S ansible
-    $ git clone ssh://git@gitlab.com/shagu/ansible-playbook
+    $ git clone ssh://git@gitlab.com/shagu/ansible-playbooks
+    $ cd ansible-playbooks/server-lxc
+    $ ansible-playbook playbook.yml -i inventory/lxc-ubuntu
