@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+echo ":: dmesg"
+dmesg | tail -n 10
+echo
+
 echo -n "Enter SD-Card [/dev/sda]: "
 read DEVICE
 DEVICE=${DEVICE:-/dev/sda}
@@ -16,7 +20,6 @@ echo -n "Enter Hostname [rpi]: "
 read HOSTNAME
 HOSTNAME=${HOSTNAME:-rpi}
 
-echo $DEVICE
 umount ${DEVICE}* || true
 umount tmp/boot || true
 umount tmp/root || true
