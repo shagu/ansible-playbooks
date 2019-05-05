@@ -6,12 +6,17 @@
            'libc6', 'libbz2-dev', 'cmake', 'libboost-all-dev',
            'unzip']
 
-- name: server directory
+- name: setup directories
+  remote_user: ubuntu
   file:
-    path: "/home/ubuntu/cmangos-classic"
+    path: '{{ item }}'
     owner: "ubuntu"
     mode: 0755
     state: directory
+  with_items:
+    - /home/ubuntu/cmangos-classic
+    - /home/ubuntu/cmangos-classic/build
+    - /home/ubuntu/cmangos-classic/run
 
 - name: clone servercode
   remote_user: ubuntu
@@ -21,25 +26,13 @@
     version: "master"
     update: yes
 
-- name: build directory
-  file:
-    path: "/home/ubuntu/cmangos-classic/source/build"
-    owner: "ubuntu"
-    state: directory
-
-- name: run directory
-  file:
-    path: "/home/ubuntu/cmangos-classic/run"
-    owner: "ubuntu"
-    state: directory
-
 - name: cmake cmangos
   shell: >
     cmake "/home/ubuntu/cmangos-classic/source"
     -DBUILD_EXTRACTORS=1
     -DCMAKE_INSTALL_PREFIX=/home/ubuntu/cmangos-classic/run
   args:
-    chdir: /home/ubuntu/cmangos-classic/source/build
+    chdir: /home/ubuntu/cmangos-classic/build
 
 - name: compile cmangos
   make:
@@ -51,3 +44,61 @@
   make:
     chdir: /home/ubuntu/cmangos-classic/source/build
     target: install
+
+- name: copy gameclient
+  remote_user: ubuntu
+  copy:
+    src: files/WoW-1.12.1-enUS.zip
+    dest: /mnt/
+    force: no
+    owner: "ubuntu"
+
+- name: extract gameclient
+  remote_user: ubuntu
+  unarchive:
+    src: /mnt/WoW-1.12.1-enUS.zip
+    dest: /mnt/
+    remote_src: yes
+
+- name: copy extractors
+  file:
+    src: "{{ item }}"
+    dest: "/mnt/WoW-1.12.1-enUS/{{ item | basename }}"
+    state: link
+  with_items:
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/ad"
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/MoveMapGen"
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/MoveMapGen.sh"
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/offmesh.txt"
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/vmap_assembler"
+    - "/home/ubuntu/cmangos-classic/run/bin/tools/vmap_extractor"
+
+- name: create map directories
+  file:
+    path: "/mnt/WoW-1.12.1-enUS/{{ item }}"
+    owner: "ubuntu"
+    state: directory
+  with_items:
+    - "vmaps"
+    - "mmaps"
+
+- name: run extractor
+  shell: '{{ item }}'
+  args:
+    chdir: "/mnt/WoW-1.12.1-enUS"
+  with_items:
+    - "./ad -f 0"
+    - "./vmap_extractor -l"
+    - "./vmap_assembler Buildings vmaps"
+    - "/bin/bash ./MoveMapGen.sh 4"
+
+- name: copy extractors
+  file:
+    src: "{{ item }}"
+    dest: "/home/ubuntu/cmangos-classic/run/{{ item | basename }}"
+    state: link
+  with_items:
+    - "/mnt/WoW-1.12.1-enUS/dbc"
+    - "/mnt/WoW-1.12.1-enUS/maps"
+    - "/mnt/WoW-1.12.1-enUS/vmaps"
+    - "/mnt/WoW-1.12.1-enUS/mmaps"
