@@ -50,13 +50,13 @@ mount ${DEVICE}2 tmp/root
 mkdir -p tmp/boot
 mount ${DEVICE}1 tmp/boot
 
-if ! [ -f ArchLinuxARM-rpi-3-latest.tar.gz ]; then
+if ! [ -f tmp/ArchLinuxARM-rpi-3-latest.tar.gz ]; then
   ( cd tmp && wget "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-3-latest.tar.gz" )
   sync
 fi
 
 echo ":: Extracting rootfs"
-bsdtar -xpf tmp/ArchLinuxARM-rpi-3-latest.tar.gz -C tmp/root || true
+bsdtar -xpf tmp/ArchLinuxARM-rpi-3-latest.tar.gz -C tmp/root
 sync
 
 echo ":: Copying bootfs"
