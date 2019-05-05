@@ -36,13 +36,13 @@
 
 - name: compile cmangos
   make:
-    chdir: /home/ubuntu/cmangos-classic/source/build
+    chdir: /home/ubuntu/cmangos-classic/build
     params:
       NUM_THREADS: 4
 
 - name: install cmangos
   make:
-    chdir: /home/ubuntu/cmangos-classic/source/build
+    chdir: /home/ubuntu/cmangos-classic/build
     target: install
 
 - name: copy gameclient
