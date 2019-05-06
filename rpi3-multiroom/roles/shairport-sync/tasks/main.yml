@@ -1,0 +1,24 @@
+---
+- name: install shairport-sync
+  pacman:
+    name: [ 'shairport-sync', 'alsa-utils' ]
+    state: latest
+
+
+- name: enable shairport-sync service
+  systemd:
+    name: shairport-sync
+    state: started
+    enabled: yes
+    masked: no
+
+- name: enable audio in config.txt
+  lineinfile:
+    line: 'dtparam=audio=on'
+    dest: /boot/config.txt
+
+- name: disable ipv6 avahi
+  lineinfile:
+    regexp: '^use-ipv6='
+    line: 'use-ipv6=no'
+    dest: /etc/avahi/avahi-daemon.conf

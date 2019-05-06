@@ -1,0 +1,13 @@
+---
+- hosts: all
+  remote_user: root
+  tasks:
+    - name: archlinux update
+      pacman:
+        upgrade: yes
+        update_cache: yes
+
+- hosts: all
+  remote_user: root
+  roles:
+    - shairport-sync
