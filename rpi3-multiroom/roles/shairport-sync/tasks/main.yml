@@ -5,12 +5,11 @@
     state: latest
 
 
-- name: enable shairport-sync service
+- name: start and enable shairport-sync
   systemd:
     name: shairport-sync
     state: started
     enabled: yes
-    masked: no
 
 - name: enable audio in config.txt
   lineinfile:
@@ -22,3 +21,9 @@
     regexp: '^use-ipv6='
     line: 'use-ipv6=no'
     dest: /etc/avahi/avahi-daemon.conf
+
+- name: set volume
+  shell: 'amixer set PCM 100%'
+
+- name: save volume
+  shell: alsactl store
