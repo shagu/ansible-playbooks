@@ -4,7 +4,6 @@
     name: [ 'shairport-sync', 'alsa-utils' ]
     state: latest
 
-
 - name: start and enable shairport-sync
   systemd:
     name: shairport-sync

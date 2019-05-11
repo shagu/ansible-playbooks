@@ -1,0 +1,37 @@
+# Raspberry Pi (Multiroom Streaming)
+- hosts:
+    - bedroom
+    - kitchen
+    - workroom
+    - bathroom
+    - livingroom
+  ignore_unreachable: yes
+  remote_user: root
+
+  tasks:
+    - name: archlinux update
+      pacman:
+        upgrade: yes
+        update_cache: yes
+
+  roles:
+    - shairport-sync
+
+# LXC Container (CMaNGOS)
+- hosts:
+    - cmangos-server
+  ignore_unreachable: yes
+  remote_user: root
+
+  tasks:
+    - name: ubuntu update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: dist
+
+    - name: user check
+      user: name=ubuntu shell=/usr/bin/bash
+
+  roles:
+    - cmangos-classic

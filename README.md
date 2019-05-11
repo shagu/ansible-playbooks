@@ -1,6 +1,41 @@
-# Network Bridge
+# Prepare Ansible Host
+## Create Keypair
 
-## Configure systemd-networkd
+    $ ssh-keygen -t rsa -b 4096
+    -> /home/eric/.ssh/ansible
+
+## Ansible
+
+    # pacman -S ansible
+    $ git clone ssh://git@gitlab.com/shagu/ansible-playbooks
+    $ ansible-playbook playbook.yml -i inventory/hosts
+
+## Copy Keypairs
+
+    # ./scripts/copy-pubkey.sh [hostname]
+
+# Bootstrap Raspberry-Pi (Archlinux ARM)
+Insert SD Card and run
+
+    # ./scripts/rpi3-sdcard.sh
+
+Connect via SSH (alarm/alarm) and run
+
+    $ export host=kitchen
+    $ ssh -t alarm@$host 'su -c "pacman-key --init;
+      pacman-key --populate archlinuxarm;
+      pacman -Syu;
+      pacman -S python;
+      passwd alarm;
+      passwd;
+      ln -s /home/alarm/.ssh /root/.ssh;
+      sed -i \"s/^#StrictModes yes/StrictModes no/g\" /etc/ssh/sshd_config;
+      systemctl restart sshd;
+    "'
+
+
+# Bootstrap LXC Host
+## Network Bridge
 **/etc/systemd/network/br0-bind.network:**
 
     [Match]
@@ -29,30 +64,26 @@
     # systemctl disable dhcpcd@eth0
     # systemctl stop dhcpcd@eth0; systemctl start systemd-networkd
 
-# LXC
+## Setup LXC
     # pacman -S lxc bridge-utls
 
-## Unprivileged Container
+### Unprivileged Container
     # echo 'lxc.idmap = u 0 100000 65536' >> /etc/lxc/default.conf
     # echo 'lxc.idmap = g 0 100000 65536' >> /etc/lxc/default.conf
     # echo 'root:100000:65536' > /etc/subuid
     # echo 'root:100000:65536' > /etc/subgid
 
-## Network Bridge
+### Use Network Bridge
     # sed -i 's/lxc.net.0.type = empty/lxc.net.0.type = veth\nlxc.net.0.flags = up\nlxc.net.0.link = br0/' /etc/lxc/default.conf
 
-## Create Containers
+# Bootstrap LXC Container
+## Create Ubuntu Container
     # lxc-create -t download -n cmangos-server
       -> ubuntu
       -> disco
       -> amd64
 
-    # lxc-create -t download -n cmangos-database
-      -> ubuntu
-      -> disco
-      -> amd64
-
-## Configure Containers
+## Start And Prepare for Ansible
     # lxc-start -n cmangos-server
     # lxc-attach -n cmangos-server
     # apt install openssh-server python
@@ -61,36 +92,3 @@
     # passwd ubuntu
     # passwd
     # systemctl restart sshd
-
-    # lxc-start -n cmangos-database
-    # lxc-attach -n cmangos-database
-    # apt install openssh-server python
-    # ln -s /home/ubuntu/.ssh /root/.ssh
-    # sed -i "s/^#StrictModes yes/StrictModes no/g" /etc/ssh/sshd_config
-    # passwd ubuntu
-    # passwd
-    # systemctl restart sshd
-
-# SSH Pubkey
-## Create Keypair
-    $ ssh-keygen -t rsa
-    -> /home/eric/.ssh/server-lxc
-
-## Install Pubkey
-    $ cat .ssh/server-lxc.pub | ssh cmangos-server -l ubuntu "mkdir -p .ssh; cat >> ~/.ssh/authorized_keys;"
-    $ cat .ssh/server-lxc.pub | ssh cmangos-database -l ubuntu "mkdir -p .ssh; cat >> ~/.ssh/authorized_keys"
-
-## Configure SSH
-**.ssh/config:**
-
-    Host cmangos-server
-    IdentityFile ~/.ssh/server-lxc
-
-    Host cmangos-database
-    IdentityFile ~/.ssh/server-lxc
-
-# Ansible
-    # pacman -S ansible
-    $ git clone ssh://git@gitlab.com/shagu/ansible-playbooks
-    $ cd ansible-playbooks/server-lxc
-    $ ansible-playbook playbook.yml -i inventory/lxc-ubuntu
