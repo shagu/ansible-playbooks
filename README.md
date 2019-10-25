@@ -7,7 +7,7 @@
 ## Ansible
 
     # pacman -S ansible
-    $ git clone ssh://git@gitlab.com/shagu/ansible-playbooks
+    $ git clone https://github.com/shagu/ansible-playbooks
     $ ansible-playbook playbook.yml -i inventory/hosts
 
 ## Copy Keypairs
